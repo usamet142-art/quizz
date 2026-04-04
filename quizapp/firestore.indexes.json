@@ -1,0 +1,21 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "results",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "quizId",      "order": "ASCENDING" },
+        { "fieldPath": "completedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "leaderboard",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "quizId",     "order": "ASCENDING" },
+        { "fieldPath": "percentage", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

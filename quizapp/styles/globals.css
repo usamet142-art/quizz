@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --color-bg: #0f0f13;
+  --color-card: #1a1a24;
+  --color-border: rgba(255,255,255,0.08);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--color-bg);
+  color: #f1f1f1;
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f0f13; }
+::-webkit-scrollbar-thumb { background: #3b3b5c; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #5b5b8c; }
+
+/* Selection */
+::selection { background: rgba(124,58,237,0.3); color: #fff; }
+
+/* Card */
+.card {
+  @apply bg-[#1a1a24] border border-white/[0.07] rounded-2xl;
+}
+
+/* Gradient text */
+.gradient-text {
+  @apply bg-clip-text text-transparent;
+}
+
+/* Neon glow */
+.glow-purple { box-shadow: 0 0 30px rgba(124,58,237,0.3); }
+.glow-pink   { box-shadow: 0 0 30px rgba(236,72,153,0.3); }
+
+/* Quiz answer button */
+.answer-btn {
+  @apply w-full p-4 rounded-xl border-2 border-white/10 bg-white/5
+         text-left font-medium transition-all duration-200
+         hover:border-purple-400 hover:bg-purple-500/10 hover:scale-[1.02]
+         active:scale-[0.98] cursor-pointer;
+}
+.answer-btn.selected {
+  @apply border-purple-500 bg-purple-500/20 text-purple-200;
+}
+.answer-btn.correct  { @apply border-green-500 bg-green-500/20 text-green-200; }
+.answer-btn.wrong    { @apply border-red-500 bg-red-500/20 text-red-200; }
+
+/* Animations */
+@keyframes slideUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { transform: scale(0.92); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.animate-slide-up  { animation: slideUp  0.4s ease-out both; }
+.animate-fade-in   { animation: fadeIn   0.3s ease-out both; }
+.animate-scale-in  { animation: scaleIn  0.3s ease-out both; }
+
+/* Shimmer skeleton */
+.skeleton {
+  background: linear-gradient(90deg, #1a1a24 25%, #252535 50%, #1a1a24 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+/* Progress bar */
+.progress-bar {
+  @apply h-2 rounded-full bg-white/10 overflow-hidden;
+}
+.progress-fill {
+  @apply h-full rounded-full transition-all duration-500 ease-out;
+  background: linear-gradient(90deg, #7c3aed, #ec4899);
+}
+
+/* Ad placeholder */
+.ad-slot {
+  @apply flex items-center justify-center text-xs text-white/20 font-medium tracking-wider;
+  background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.04));
+  border: 1px dashed rgba(255,255,255,0.1);
+}
+
+/* Mobile first tweaks */
+@media (max-width: 640px) {
+  .answer-btn { @apply p-3 text-sm; }
+}
