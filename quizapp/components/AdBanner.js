@@ -12,7 +12,7 @@ const AD_SLOTS = {
 const publisherId = process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID || 'ca-pub-XXXXXXXXXXXXXXXXX';
 const COOKIE_CONSENT_KEY = 'quizify-cookie-consent';
 
-export default function AdBanner({ slot = 'banner', size = 'normal', className = '' }) {
+export default function AdBanner({ slot = 'banner', className = '' }) {
   const adRef  = useRef(null);
   const config = AD_SLOTS[slot] || AD_SLOTS['banner'];
   const hasRealPublisher = publisherId.startsWith('ca-pub-') && !publisherId.includes('XXXX');
