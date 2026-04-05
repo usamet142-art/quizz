@@ -9,18 +9,25 @@ import {
   updateProfile,
   sendEmailVerification,
 } from 'firebase/auth';
-import { auth, googleProvider } from '../lib/firebase';
+import { auth, googleProvider, firebaseEnabled } from '../lib/firebase';
 import { createUserProfile, getUserProfile } from '../lib/firestore';
 
 const AuthContext = createContext({});
+const FIREBASE_DISABLED_ERROR = 'Les comptes sont temporairement desactives sur cette version du site.';
 
 export function AuthProvider({ children }) {
-  const [user, setUser]           = useState(null);
-  const [profile, setProfile]     = useState(null);
-  const [loading, setLoading]     = useState(true);
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Charger le profil Firestore quand l'utilisateur change
   useEffect(() => {
+    if (!firebaseEnabled || !auth) {
+      setUser(null);
+      setProfile(null);
+      setLoading(false);
+      return undefined;
+    }
+
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
@@ -31,11 +38,12 @@ export function AuthProvider({ children }) {
       }
       setLoading(false);
     });
+
     return unsub;
   }, []);
 
-  // ── Inscription email/mot de passe ──────────────────────────────────────────
   async function register(email, password, displayName) {
+    if (!firebaseEnabled || !auth) throw new Error(FIREBASE_DISABLED_ERROR);
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(cred.user, { displayName });
     await sendEmailVerification(cred.user);
@@ -49,10 +57,10 @@ export function AuthProvider({ children }) {
     return cred.user;
   }
 
-  // ── Connexion email/mot de passe ────────────────────────────────────────────
   async function login(email, password) {
+    if (!firebaseEnabled || !auth) throw new Error(FIREBASE_DISABLED_ERROR);
     const cred = await signInWithEmailAndPassword(auth, email, password);
-    const p    = await getUserProfile(cred.user.uid);
+    const p = await getUserProfile(cred.user.uid);
     if (!p) {
       await createUserProfile(cred.user.uid, {
         displayName: cred.user.displayName || 'Utilisateur',
@@ -64,15 +72,15 @@ export function AuthProvider({ children }) {
     return cred.user;
   }
 
-  // ── Connexion Google ────────────────────────────────────────────────────────
   async function loginWithGoogle() {
+    if (!firebaseEnabled || !auth || !googleProvider) throw new Error(FIREBASE_DISABLED_ERROR);
     const cred = await signInWithPopup(auth, googleProvider);
-    const p    = await getUserProfile(cred.user.uid);
+    const p = await getUserProfile(cred.user.uid);
     if (!p) {
       await createUserProfile(cred.user.uid, {
         displayName: cred.user.displayName || 'Utilisateur',
-        email:       cred.user.email,
-        photoURL:    cred.user.photoURL || '',
+        email: cred.user.email,
+        photoURL: cred.user.photoURL || '',
       });
       const np = await getUserProfile(cred.user.uid);
       setProfile(np);
@@ -82,21 +90,20 @@ export function AuthProvider({ children }) {
     return cred.user;
   }
 
-  // ── Déconnexion ─────────────────────────────────────────────────────────────
   async function logout() {
+    if (!firebaseEnabled || !auth) return;
     await signOut(auth);
     setUser(null);
     setProfile(null);
   }
 
-  // ── Reset mot de passe ──────────────────────────────────────────────────────
   async function resetPassword(email) {
+    if (!firebaseEnabled || !auth) throw new Error(FIREBASE_DISABLED_ERROR);
     await sendPasswordResetEmail(auth, email);
   }
 
-  // ── Rafraîchir le profil ────────────────────────────────────────────────────
   async function refreshProfile() {
-    if (user) {
+    if (firebaseEnabled && user) {
       const p = await getUserProfile(user.uid);
       setProfile(p);
     }
@@ -113,6 +120,7 @@ export function AuthProvider({ children }) {
     resetPassword,
     refreshProfile,
     isAuthenticated: !!user,
+    authEnabled: firebaseEnabled,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

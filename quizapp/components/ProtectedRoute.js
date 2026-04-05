@@ -3,14 +3,18 @@ import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 
 export default function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth();
+  const { user, loading, authEnabled } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    if (!authEnabled) {
+      router.push('/');
+      return;
+    }
     if (!loading && !user) {
       router.push(`/login?redirect=${encodeURIComponent(router.asPath)}`);
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, authEnabled]);
 
   if (loading) {
     return (
@@ -23,6 +27,7 @@ export default function ProtectedRoute({ children }) {
     );
   }
 
+  if (!authEnabled) return null;
   if (!user) return null;
   return children;
 }

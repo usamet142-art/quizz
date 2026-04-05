@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 export default function ForgotPasswordPage() {
-  const { resetPassword } = useAuth();
+  const { resetPassword, authEnabled } = useAuth();
   const [email, setEmail]   = useState('');
   const [sent, setSent]     = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -52,6 +52,11 @@ export default function ForgotPasswordPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
+                {!authEnabled && (
+                  <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-200 text-sm">
+                    La recuperation de mot de passe est indisponible tant que Firebase n'est pas configure.
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-medium text-white/60 mb-1.5">Ton email</label>
                   <input
@@ -66,7 +71,7 @@ export default function ForgotPasswordPage() {
                 </div>
                 <button
                   type="submit"
-                  disabled={submitting}
+                  disabled={submitting || !authEnabled}
                   className="w-full py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 font-bold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {submitting ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>Envoi...</> : 'Envoyer le lien →'}

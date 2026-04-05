@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 export default function RegisterPage() {
-  const { register, loginWithGoogle } = useAuth();
+  const { register, loginWithGoogle, authEnabled } = useAuth();
   const router = useRouter();
 
   const [form, setForm]     = useState({ displayName: '', email: '', password: '', confirm: '' });
@@ -77,9 +77,15 @@ export default function RegisterPage() {
           </div>
 
           <div className="card p-6 sm:p-8">
+            {!authEnabled && (
+              <div className="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-200 text-sm">
+                La creation de compte est temporairement desactivee pendant la mise en ligne. Tu peux deja
+                parcourir les quiz librement.
+              </div>
+            )}
             <button
               onClick={handleGoogle}
-              disabled={submitting}
+              disabled={submitting || !authEnabled}
               className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 font-semibold text-sm transition-all mb-6 disabled:opacity-50"
             >
               <svg viewBox="0 0 24 24" className="w-5 h-5 flex-shrink-0">
@@ -154,7 +160,7 @@ export default function RegisterPage() {
 
               <button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || !authEnabled}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 font-bold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2 mt-2"
               >
                 {submitting ? (

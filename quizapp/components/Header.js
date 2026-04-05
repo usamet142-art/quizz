@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 export default function Header() {
-  const { user, profile, logout } = useAuth();
+  const { user, profile, logout, authEnabled } = useAuth();
   const router  = useRouter();
   const [menu, setMenu] = useState(false);
 
@@ -96,7 +96,7 @@ export default function Header() {
                 </div>
               )}
             </div>
-          ) : (
+          ) : authEnabled ? (
             <div className="flex items-center gap-2">
               <Link href="/login"
                 className="text-sm font-medium text-white/60 hover:text-white transition-colors px-3 py-2">
@@ -106,6 +106,10 @@ export default function Header() {
                 className="text-sm font-bold px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 transition-opacity">
                 S'inscrire
               </Link>
+            </div>
+          ) : (
+            <div className="hidden sm:block text-xs text-white/35 border border-white/10 rounded-xl px-3 py-2">
+              Mode visiteur
             </div>
           )}
 
@@ -133,7 +137,7 @@ export default function Header() {
               {n.label}
             </Link>
           ))}
-          {!user && (
+          {!user && authEnabled && (
             <>
               <Link href="/login" onClick={() => setMenu(false)}
                 className="block px-4 py-3 text-sm font-medium hover:bg-white/5 transition-colors border-b border-white/[0.05]">

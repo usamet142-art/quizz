@@ -1,7 +1,13 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { getAnalytics, isSupported } from 'firebase/analytics';
+
+const hasFirebaseConfig = Boolean(
+  process.env.NEXT_PUBLIC_FIREBASE_API_KEY &&
+  process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN &&
+  process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID &&
+  process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+);
 
 const firebaseConfig = {
   apiKey:            process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -14,21 +20,35 @@ const firebaseConfig = {
 };
 
 // Initialise une seule instance de Firebase
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+const app = hasFirebaseConfig
+  ? getApps().length > 0
+    ? getApp()
+    : initializeApp(firebaseConfig)
+  : null;
 
-export const auth = getAuth(app);
-export const db   = getFirestore(app);
-export const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({ prompt: 'select_account' });
+export const firebaseEnabled = hasFirebaseConfig;
+export const auth = app ? getAuth(app) : null;
+export const db   = app ? getFirestore(app) : null;
+export const googleProvider = app ? new GoogleAuthProvider() : null;
+
+if (googleProvider) {
+  googleProvider.setCustomParameters({ prompt: 'select_account' });
+}
 
 // Analytics uniquement côté client
 export let analytics = null;
-if (typeof window !== 'undefined') {
-  isSupported().then((supported) => {
-    if (supported) {
-      analytics = getAnalytics(app);
-    }
-  });
+if (app && typeof window !== 'undefined') {
+  import('firebase/analytics')
+    .then(({ getAnalytics, isSupported }) =>
+      isSupported().then((supported) => {
+        if (supported) {
+          analytics = getAnalytics(app);
+        }
+      })
+    )
+    .catch(() => {
+      analytics = null;
+    });
 }
 
 export default app;
